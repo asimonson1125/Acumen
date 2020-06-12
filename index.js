@@ -1,26 +1,45 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const login = '';
+const predictions = require('./predictNG/predict');
+const login = 'NzIwNzg4Njg2NDMzOTQzNjQ2.XuLFGw.U51DefEX1WpLJp25RYigNxRiMZA';
+
+
+async function predictMessage(msg, id, numBattles){
+    let message = await msg.channel.send("Finding battle...");
+    const prediction = await predictions.BattleSimulate(message, id, numBattles);
+    msg.reply("Here is my prediction of battle " + id + ":\n" + prediction);
+}
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setPresence({ activity: { name: 'wth the fabric of reality' }});
+    client.user.setPresence({ activity: { name: 'wth numbers' }});
  });
 
 client.on('message', msg => {
     if (msg.author.bot || !msg.guild) return;
     
+    if(msg.content.substring(0,4) === '^ngp'){
+        if(msg.content.length < 6){ msg.reply("please give me an id.");}
+        const id = msg.content.substring(5,12);
+        let numBattles = parseInt(msg.content.substring(13));
+        if(isNaN(numBattles)){ numBattles = 100;}
+        if(numBattles > 10001){ msg.reply("Please don't make me simulate more than 10001 times... My host computer thanks you.");}
+        else{
+            predictMessage(msg, id, numBattles);
+        }
+    } // ng battle predictions
+    
     if(msg.content.substring(0,3) === '^8b'){ 
         let roll = Math.floor(Math.random() * 8);
         if(msg.content.substring(3,4) != ' ' || msg.content.length <= 4){ msg.reply("... ask me something, fool.");}
-        else if (roll == 0){ msg.reply("🎱 ... mayhaps..");}
+        else if (roll == 0){ msg.reply("🎱 ... Maybe, it's hard to say..");}
         else if (roll == 1){ msg.reply("🎱 ... It is certian.");}
         else if (roll == 2){ msg.reply("🎱 ... Don't count on it.");}
-        else if (roll == 3){ msg.reply("🎱 ... Only if you make it true.");}
+        else if (roll == 3){ msg.reply("🎱 ... Only if you make it so.");}
         else if (roll == 4){ msg.reply("🎱 ... I can't be sure, but my guess is no.");}
-        else if (roll == 5){ msg.reply("🎱 ... oh dear... are you sure you want to the answer to that?");}
-        else if (roll == 6){ msg.reply("🎱 ... no.");}
-        else if (roll == 7){ msg.reply("🎱 ... you waste my time. (try again)");}
+        else if (roll == 5){ msg.reply("🎱 ... Oh dear... are you sure you want the answer to that?");}
+        else if (roll == 6){ msg.reply("🎱 ... No.");}
+        else if (roll == 7){ msg.reply("🎱 ... You waste my time. (try again)");}
     } //8ball
     
     if(msg.content.includes('<@!' + client.user.id + '>')){
@@ -46,7 +65,7 @@ client.on('message', msg => {
         msg.channel.send(msg.content.substring(18) + "  .... N A N I ? ! ? !");
     } //next line echoer
     
-    if(msg.content.length >= 15){
+    if(msg.content.length >= 30){
         const keyboardRole = msg.guild.roles.cache.find(r => r.name === "Keyboard Warrior ⌨️");
         if(!msg.member.roles.cache.has(keyboardRole.id)){
             let capitals = 0;

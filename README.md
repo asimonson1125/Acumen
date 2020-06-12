@@ -5,3 +5,6 @@ A Discord bot focused on statistical insight and role management
 
 ## Uses:
  - I just made this, give me a bit
+ - simulate NG battles and predict victors
+ - catch invisible posters
+ - and more things that you'll never notice
