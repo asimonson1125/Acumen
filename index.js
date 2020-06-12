@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const predictions = require('./predictNG/predict');
-const login = 'NzIwNzg4Njg2NDMzOTQzNjQ2.XuLFGw.U51DefEX1WpLJp25RYigNxRiMZA';
+const login = require('./login');
 
 
 async function predictMessage(msg, id, numBattles){
@@ -81,4 +81,4 @@ client.on('message', msg => {
     } //keyboard warrior detection
 });
 
-client.login(login);
+login.login(client);
