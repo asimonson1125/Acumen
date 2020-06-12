@@ -84,3 +84,13 @@ exports.initiativeRoll = function(friendlies, enemies){
     unitList.forEach(function(i){ret.push(i[0]);});
     return(ret);
 }
+
+exports.checkRetreat = function(friendlies, enemies){
+    let friendlyPower = 0;
+    let enemyPower = 0;
+    friendlies.forEach(function(i){ friendlyPower += i.firepower*(i.hp/i.maxhp);});
+    enemies.forEach(function(i){ enemyPower += i.firepower*(i.hp/i.maxhp)});
+    if(friendlyPower * .1 > enemyPower && Math.random() <= .8){ return "friendlies";}
+    else if (enemyPower * .1 > friendlyPower && Math.random() <= .8){ return "enemies";}
+    return "unknown";
+}

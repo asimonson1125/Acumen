@@ -19,7 +19,7 @@ testHealer = new unitClass.unit("idkMan", 0,0,0,10,0,[],[],[["Infantry",30]],1);
 // change pFriendlies and pEnemies to fit how many units you have in your battle and what you named them.
 async function instantBattle(message, battleID, rounds){
     const gettery = await hook.getUnitObjects(battleID);
-    if(gettery[0].length < 1 || gettery[1].length <1){ return([0,0,0,0,0]);}else{message.edit("Simulating...")}
+    if(gettery[0].length < 1 || gettery[1].length <1){ return([0,0,0,0,0]);}else{await message.edit("Simulating...");}
     const pFriendlies = gettery[0];
     const pEnemies = gettery[1];
 
@@ -27,7 +27,9 @@ async function instantBattle(message, battleID, rounds){
     let enemies = pEnemies.slice();
 
     let enemyWins = 0;
+    let friendliesretreated = 0;
     let friendlyWins = 0;
+    let enemiesretreated = 0;
     let enemyremainder = 0;
     let friendlyremainder = 0;
     for(roundnum = 0; roundnum < rounds; roundnum++){
@@ -35,7 +37,7 @@ async function instantBattle(message, battleID, rounds){
         while (winner == "unknown"){
             let order = await mathlab.initiativeRoll(friendlies.slice(), enemies.slice());
             for(let i = 0; i < order.length; i++){
-                if (friendlies.length > 0 && enemies.length > 0){
+                if (friendlies.length > 0 && enemies.length > 0 && order[i].alive && winner == "unknown"){
                     if (friendlies.includes(order[i])){
                         let target = enemies[Math.floor(Math.random() * enemies.length)];
                         await mathlab.attack(order[i], target, pEnemies);
@@ -52,16 +54,19 @@ async function instantBattle(message, battleID, rounds){
                             if (friendlies.length == 0){ winner = "enemies";}
                         }
                     }
+                    if(winner == "unknown"){ winner = mathlab.checkRetreat(friendlies, enemies);}
                 }
             }
         }
         if (winner == "enemies"){
             enemyWins += 1;
             enemyremainder += enemies.length;
+            friendliesretreated += friendlies.length;
         }
         if (winner == "friendlies"){
             friendlyWins += 1;
             friendlyremainder += friendlies.length;
+            enemiesretreated += enemies.length;
         }
         friendlies = pFriendlies.slice();
         enemies = pEnemies.slice();
@@ -74,9 +79,9 @@ async function instantBattle(message, battleID, rounds){
             unit.alive = true;
         });
     }
-    if(friendlyWins > 1){ friendlyremainder /= friendlyWins;}
-    if(enemyWins > 1){ enemyremainder /= enemyWins;}
-    return([friendlyWins, enemyWins, Math.round(friendlyremainder), Math.round(enemyremainder),1]);
+    if(friendlyWins > 1){ friendlyremainder /= friendlyWins; enemiesretreated /= friendlyWins;}
+    if(enemyWins > 1){ enemyremainder /= enemyWins; friendliesretreated /= enemyWins;}
+    return([friendlyWins, enemyWins, [Math.round(friendlyremainder*100)/100, Math.round(enemiesretreated*100)/100], [Math.round(enemyremainder*100)/100, Math.round(friendliesretreated*100)/100],1]);
 }
 
 exports.BattleSimulate = async function(message, id, numBattles){
@@ -91,7 +96,7 @@ exports.BattleSimulate = async function(message, id, numBattles){
     else if (results[0] < results[1]){
         responseStr = "**Attackers won!**";
     }
-    let resStr =  `After ${numBattles} simulations, I predict that the defenders have a ${Math.round(((results[0]/numBattles) + Number.EPSILON)*10000)/100.0}% chance of victory. (attackers have ${Math.round(((results[1]/numBattles) + Number.EPSILON)*10000)/100.0}% chance.)\n\nGiven the corresponding side wins, the defenders can expect to have ${results[2]} units left while the attackers can expect ${results[3]}.`
+    let resStr =  `After ${numBattles} simulations, I predict that the defenders have a ${Math.round(((results[0]/numBattles) + Number.EPSILON)*10000)/100.0}% chance of victory. (attackers have ${Math.round(((results[1]/numBattles) + Number.EPSILON)*10000)/100.0}% chance.)\n\nGiven the defenders win, they can expect to have ${results[2][0]} units left while the attackers can expect ${results[2][1]} to survive.\nGiven the attackers win, they can expect to have ${results[3][0]} units left while the defenders can expect ${results[3][1]} to survive.`
     resStr = "```\n" + resStr + "\n```";
     responseStr += resStr;
     return(responseStr);
