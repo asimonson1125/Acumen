@@ -36,7 +36,8 @@ exports.attack = function(firer, target, targetAllies){
         fp = firer.firepower;
         man = firer.maneuver;
     }
-    target.typeBonuses.forEach(function(i){if(i[0] == target.type){ targetBonus = i[1];}});
+    targetBonus = 0;
+    target.typeBonuses.forEach(function(i){if(i[0] == firer.type){ targetBonus = i[1];}});
     let tMultiplier = (target.bonuses + targetBonus);    
     if (target.counters.includes(firer.type)){
         tArm = (1.25 * target.armor + 3);
@@ -55,11 +56,17 @@ exports.attack = function(firer, target, targetAllies){
     let damageReduct = 0
     targetAllies.forEach(function(i){i.healing.forEach(function(type){if(type[0] == target.type){ damageReduct += type[1];}});});
     if(damageReduct > 30){ damageReduct = 30;} // 30% is max friendly damage reduction
-    if (firer.type in target.counters){ healing = Math.round(damage * ((damageReduct + 50) / 100));}
-    else{ healing = Math.round(damage * (damageReduct / 100));}
+    let counters = false;
+    target.counters.forEach(function(x){
+        if(x == firer.type && counters == false){
+            healing = Math.round(damage * ((damageReduct + 50) / 100));
+            counters = true;
+        }
+    });
+    if(counters == false){ healing = Math.round(damage * (damageReduct / 100));}
     damage = Math.ceil(damage - healing);
     // damage cannot be 0 or negative, so this is my compensation since we don't know how the real calculation works
-    if(damage < 5){ damage = 5;}
+    if(damage < 3){ damage = 3;}
     target.hp -= damage;
     if (target.hp <= 0){ target.alive = false;}
     return;
@@ -76,7 +83,9 @@ exports.initiativeRoll = function(friendlies, enemies){
     unitList.forEach(function(x){
         let iRoll = Math.floor(Math.random() * 100) + 1;
         x[1] = iRoll * Math.pow((x[0].hp / x[0].maxhp),2);  // hp factor squared for more dramatic effect
-        if("Special Forces" in x[0].counters){ x[1] *= 3;}
+        x[0].counters.forEach(function(i){
+        if("Special Forces" == i){ x[1] *= 3;}
+        });
     });
     // Now each unit is assigned an initiative roll.  Now to sort them.
     unitList.sort(function(a, b){return b[1]-a[1]});
@@ -90,7 +99,7 @@ exports.checkRetreat = function(friendlies, enemies){
     let enemyPower = 0;
     friendlies.forEach(function(i){ friendlyPower += i.firepower*(i.hp/i.maxhp);});
     enemies.forEach(function(i){ enemyPower += i.firepower*(i.hp/i.maxhp)});
-    if(friendlyPower * .1 > enemyPower && Math.random() <= .8){ return "friendlies";}
-    else if (enemyPower * .1 > friendlyPower && Math.random() <= .8){ return "enemies";}
+    if(friendlyPower * .2 > enemyPower && Math.random() <= .8){ return "friendlies";}
+    else if (enemyPower * .2 > friendlyPower && Math.random() <= .8){ return "enemies";}
     return "unknown";
 }

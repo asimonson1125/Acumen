@@ -20,12 +20,14 @@ client.on('message', msg => {
     
     if(msg.content.substring(0,4) === '^ngp'){
         if(msg.content.length < 6){ msg.reply("please give me an id.");}
-        const id = msg.content.substring(5,12);
-        let numBattles = parseInt(msg.content.substring(13));
-        if(isNaN(numBattles)){ numBattles = 100;}
-        if(numBattles > 10001){ msg.reply("Please don't make me simulate more than 10001 times... My host computer thanks you.");}
         else{
-            predictMessage(msg, id, numBattles);
+            const id = msg.content.substring(5,12);
+            let numBattles = parseInt(msg.content.substring(13));
+            if(isNaN(numBattles)){ numBattles = 100;}
+            if(numBattles > 10001){ msg.reply("Please don't make me simulate more than 10001 times... My host computer thanks you.");}
+            else{
+                predictMessage(msg, id, numBattles);
+            }
         }
     } // ng battle predictions
     
@@ -48,6 +50,7 @@ client.on('message', msg => {
     } //angrily responds to pings
     
     if(msg.member.presence.status === "offline"){
+        try{
         const ghostRole = msg.guild.roles.cache.find(r => r.name === "Ghost 👻");
         if(msg.member.roles.cache.has(ghostRole.id)){
             //ghosting previously detected
@@ -55,7 +58,7 @@ client.on('message', msg => {
         else{
             msg.member.roles.add(ghostRole);
             msg.reply(`you were just caught GHOSTING.  Here's your obligatory ghost role 👻`);
-        }
+        }} catch(error){console.log("couldn't find ghost role")}
     } //ghost catcher
     if(msg.content.toLowerCase() === 'Acumen'){
         msg.channel.send(`howdy!`);
@@ -66,6 +69,7 @@ client.on('message', msg => {
     } //next line echoer
     
     if(msg.content.length >= 30){
+        try{
         const keyboardRole = msg.guild.roles.cache.find(r => r.name === "Keyboard Warrior ⌨️");
         if(!msg.member.roles.cache.has(keyboardRole.id)){
             let capitals = 0;
@@ -73,10 +77,10 @@ client.on('message', msg => {
                 if(msg.content[x] != msg.content[x].toLowerCase()){ capitals++;}
             }
             if(capitals >= msg.content.length * .75){
-                msg.reply('you have successfully screamed yourself into a new role.  Welcome, keyboard warrior! ⌨️⌨️⌨️');
                 msg.member.roles.add(keyboardRole);
+                msg.reply('you have successfully screamed yourself into a new role.  Welcome, keyboard warrior! ⌨️⌨️⌨️');
             }
-        }
+        }} catch(error){console.log("couldn't find keyboard warrior role")}
         
     } //keyboard warrior detection
 });

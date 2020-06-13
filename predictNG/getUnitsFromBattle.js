@@ -1,7 +1,7 @@
 const unitClass = require('./Unit');
 const fetch = require('node-fetch');
 
-function generate(x,attacking,continent){
+function generate(x, attacking, continent, defType){
     let ret = "";
     let locationBonus = 0;
     let type = 0;
@@ -17,10 +17,9 @@ function generate(x,attacking,continent){
     else if (x.type == 4){ type = "Special Forces"}
     else if (x.type == 5){ type = "Static"}
 
-    if(!attacking){ //defending
+    if(attacking == false){ //defending
         x.unit_stats.forEach(function(i){ 
-            if(i.type == 1){ locationBonus += i.value;} //defense bonus
-            
+            if(i.type == 1 && defType == 0){ locationBonus += i.value; } //defense bonus
             else if(i.type == 3){ //unit type bonus
                 let nstPlace = 18; //find where the nst in against is.
                 //This is important in case the text length changes due to triple digit values.
@@ -134,10 +133,10 @@ exports.getUnitObjects = async function (battleID){
     let friendlies = [];
     let enemies = [];
     for(let i = 0; i < b.defenders.length; i++){
-        b.defenders[i].groups[0].units.forEach(function(x){friendlies.push(generate(x,false,continentType));});
+        b.defenders[i].groups[0].units.forEach(function(x){friendlies.push(generate(x,false,continentType, i));});
     }
     for(let i = 0; i < b.attackers.length; i++){
-        b.attackers[i].groups[0].units.forEach(function(x){enemies.push(generate(x,false,continentType));});
+        b.attackers[i].groups[0].units.forEach(function(x){enemies.push(generate(x,true,continentType, i));});
     }
     return([friendlies,enemies]);
 }
