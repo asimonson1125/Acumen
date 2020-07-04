@@ -37,7 +37,14 @@ exports.attack = function(firer, target, targetAllies){
         man = firer.maneuver;
     }
     targetBonus = 0;
-    target.typeBonuses.forEach(function(i){if(i[0] == firer.type){ targetBonus = i[1];}});
+    try{
+    target.typeBonuses.forEach(function(i){
+        if(i[0] == firer.type){ targetBonus = i[1];}
+    });
+    }
+    catch(error){
+        console.log(target);
+    }
     let tMultiplier = (target.bonuses + targetBonus);    
     if (target.counters.includes(firer.type)){
         tArm = (1.25 * target.armor + 3);

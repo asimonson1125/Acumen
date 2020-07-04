@@ -1,7 +1,6 @@
 //import
 const mathlab = require('./mathlab');
 const unitClass = require('./Unit');
-const hook = require('./getUnitsFromBattle');
 
 // ______________________________________________________________________________
 // make your units here:
@@ -17,11 +16,17 @@ testHealer = new unitClass.unit("idkMan", 0,0,0,10,0,[],[],[["Infantry",30]],1);
 
 // instantBattle simulates the battle 'rounds' number of times and prints how many each side won with remaining units
 // change pFriendlies and pEnemies to fit how many units you have in your battle and what you named them.
-async function instantBattle(message, battleID, rounds){
-    const gettery = await hook.getUnitObjects(battleID);
-    if(gettery[0].length < 1 || gettery[1].length <1){ return([0,0,0,0,0]);}else{await message.edit("Simulating...");}
-    const pFriendlies = gettery[0];
-    const pEnemies = gettery[1];
+async function instantBattle(message, units, rounds){
+    try{
+        if(units[0].length < 1 || units[1].length <1){
+            return([0,0,0,0,0]);
+        }
+        else{
+            await message.edit("Simulating...");
+        }
+    } catch(error){return([0,0,0,0,0]);}
+    const pFriendlies = units[0];
+    const pEnemies = units
 
     let friendlies = pFriendlies.slice();
     let enemies = pEnemies.slice();
@@ -84,10 +89,10 @@ async function instantBattle(message, battleID, rounds){
     return([friendlyWins, enemyWins, [Math.round(friendlyremainder*100)/100, Math.round(enemiesretreated*100)/100], [Math.round(enemyremainder*100)/100, Math.round(friendliesretreated*100)/100],1]);
 }
 
-exports.BattleSimulate = async function(message, id, numBattles){
-    const results = await instantBattle(message, id, numBattles);
+exports.BattleSimulate = async function(message, units, numBattles){
+    const results = await instantBattle(message, units, numBattles);
     if(results[4] == 0){
-        return("Encountered an error fetching units from battle");
+        return("Encountered an error fetching live units from battle");
     }
     let responseStr = "**Tie**";
     if(results[0] > results[1]){

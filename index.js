@@ -1,13 +1,24 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const predictions = require('./predictNG/predict');
+const webCatcher = require('./predictNG/getUnitsFromBattle');
 const login = require('./login');
 
 
 async function predictMessage(msg, id, numBattles){
-    let message = await msg.channel.send("Finding battle...");
-    const prediction = await predictions.BattleSimulate(message, id, numBattles);
-    msg.reply("Here is my prediction of battle " + id + ":\n" + prediction);
+    let message;
+    //try{
+        if(msg.content.includes("-c")){
+            units = await webCatcher.getUnitObjects(id, false);
+            message = await msg.channel.send("Finding ongoing battle...");
+        }
+        else{
+            units = await webCatcher.getUnitObjects(id, true);
+            message = await msg.channel.send("Finding battle...");
+        }
+        const prediction = await predictions.BattleSimulate(message, units, numBattles);
+        msg.reply("Here is my prediction of battle " + id + ":\n" + prediction);
+    //} catch(error){msg.reply("Invalid battle id");}
 }
 
 client.on('ready', () => {
@@ -21,7 +32,7 @@ client.on('message', msg => {
     if(msg.content.substring(0,4) === '^ngp'){
         if(msg.content.length < 6){ msg.reply("please give me an id.");}
         else{
-            const id = msg.content.substring(5,12);
+            const id = parseInt(msg.content.substring(5,12));
             let numBattles = parseInt(msg.content.substring(13));
             if(isNaN(numBattles)){ numBattles = 100;}
             if(numBattles > 10001){ msg.reply("Please don't make me simulate more than 10001 times... My host computer thanks you.");}
@@ -70,13 +81,13 @@ client.on('message', msg => {
     
     if(msg.content.length >= 30){
         try{
-        const keyboardRole = msg.guild.roles.cache.find(r => r.name === "Keyboard Warrior ⌨️");
         if(!msg.member.roles.cache.has(keyboardRole.id)){
             let capitals = 0;
             for(let x = 0; x < msg.content.length; x++){
                 if(msg.content[x] != msg.content[x].toLowerCase()){ capitals++;}
             }
             if(capitals >= msg.content.length * .75){
+                const keyboardRole = msg.guild.roles.cache.find(r => r.name === "Keyboard Warrior ⌨️");
                 msg.member.roles.add(keyboardRole);
                 msg.reply('you have successfully screamed yourself into a new role.  Welcome, keyboard warrior! ⌨️⌨️⌨️');
             }
