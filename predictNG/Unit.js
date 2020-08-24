@@ -12,5 +12,9 @@ exports.unit = class{
         this.alive = true;
         this.healing = healing;
         this.jackhammerFactor = shotsPerTurn;
+        this.timesVictorious = 0; //times returned victorious
+        this.timesRetreated = 0; //times retreated (alive)
+        this.totalDamageOut = 0;
+        this.timesFired = 0;
     }
 }
