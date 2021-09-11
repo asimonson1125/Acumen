@@ -5,7 +5,12 @@ A Discord bot focused on statistical insight and role management
 
 ## Uses:
  - catch invis posters
+![channel message](/images/ghosing.png)
  - enables bot owner to identify all channels in servers (perms not needed) and post in those channels as the bot (perms needed)
+![channel message](/images/hax.png)
  - simulate NG battles and predict victors (forked from rolls simulator)
+![channel message](/images/Acumen1.png)
+![DM message](/images/Acumen2.png)
  - find most recent action of NG users
+![channel message](/images/act.png)
  - and more things that you'll never notice
